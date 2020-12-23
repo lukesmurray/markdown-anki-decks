@@ -20,7 +20,8 @@ Run `mdankideck input output` to convert the markdown files in the input directo
 
 ## Tutorial
 
-Markdown anki decks converts all markdown files in an input directory to `apkg` files. The `apkg` files are stored in an output directory.
+Markdown anki decks converts all markdown files in an input directory to `apkg` files.
+The `apkg` files are stored in an output directory.
 
 1. Create the input directory `mkdir input`.
 2. Create the output directory `mkdir output`.
@@ -57,11 +58,14 @@ These are limitations of anki not Markdown anki decks.
 
 ## Questions
 
-All questions in a single deck must be unique. Two questions in the same deeck which are identical will have the same id and will lead to a collision.
+All questions in a single deck must be unique.
+Two questions in the same deck which are identical will have the same id and will lead to a collision.
 
 ## Design
 
-The markdown files are parsed with [commonmark](https://pypi.org/project/commonmark/). The resulting html is then parsed with [beautifulsoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/). Finally the cards are created with [genanki](https://github.com/kerrickstaley/genanki). The cli is implemented using [typer](https://github.com/tiangolo/typer) and the program is packaged using [poetry](https://github.com/python-poetry/poetry).
+The markdown files are parsed with [commonmark](https://pypi.org/project/commonmark/). The resulting html is then parsed with [beautifulsoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
+Finally the cards are created with [genanki](https://github.com/kerrickstaley/genanki).
+The cli is implemented using [typer](https://github.com/tiangolo/typer) and the program is packaged using [poetry](https://github.com/python-poetry/poetry).
 
 ## Contributing
 
