@@ -66,3 +66,14 @@ The markdown files are parsed with [commonmark](https://pypi.org/project/commonm
 ## Contributing
 
 Happy to discuss additional features if you open up an issue.
+
+We use commitizen for commits.
+Run `poetry run cz commit` to make a commit.
+
+### Releases
+
+Run `poetry run cz bump --check-consistency` to update the changelog and create a tag.
+
+Create the build with `poetry build`.
+
+Publish the build with `poetry publish`.
