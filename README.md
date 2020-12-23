@@ -18,6 +18,14 @@ Markdown anki decks uses the question to uniquely identify the card.
 You can change the card contents without losing your progress on the card.
 Markdown anki decks can be reimported without creating duplicates.
 
+## Installation
+
+Make sure you have a python version of 3.7 or greater installed.
+
+`pip install markdown-anki-decks`
+
+This will install the `mdankideck` cli tool.
+
 ## Usage
 
 Run `mdankideck input output` to convert the markdown files in the input directory to `apkg` files in the output directory.

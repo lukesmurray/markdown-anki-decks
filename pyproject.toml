@@ -40,7 +40,6 @@ version_files = [
     "pyproject.toml:version",
     "markdown_anki_decks/__init__.py",
 ]
-bump_message = "release $current_version → $new_version [skip-ci]"
 update_changelog_on_bump = true
 
 [build-system]
