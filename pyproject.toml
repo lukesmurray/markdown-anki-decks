@@ -29,6 +29,7 @@ pytest = "^4.6"
 black = "^20.8b1"
 flake8 = "^3.8.4"
 commitizen = "^2.11.1"
+pre-commit = "^2.9.3"
 
 [tool.poetry.scripts]
 mdankideck = "markdown_anki_decks.cli:main"

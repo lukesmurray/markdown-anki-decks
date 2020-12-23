@@ -1,5 +1,9 @@
 # markdown-anki-decks
 
+![PyPI](https://img.shields.io/pypi/v/markdown-anki-decks)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/markdown-anki-decks)
+![PyPI - License](https://img.shields.io/pypi/l/markdown-anki-decks)
+
 Markdown anki decks is a simple program to convert markdown files into anki decks.
 
 ```md
