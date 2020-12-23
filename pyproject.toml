@@ -34,7 +34,7 @@ commitizen = "^2.11.1"
 mdankideck = "markdown_anki_decks.cli:main"
 
 [tool.commitizen]
-version = "0.0.1"
+version = "0.1.0"
 version_files = [
     "pyproject.toml:^version",
     "markdown_anki_decks/__init__.py",
