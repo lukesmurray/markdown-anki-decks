@@ -1,2 +1,5 @@
 # ignore the python build output
 dist
+
+# ignore all the anki decks
+*.apkg
