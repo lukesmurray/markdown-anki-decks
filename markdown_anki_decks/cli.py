@@ -8,28 +8,42 @@ import genanki
 import typer
 from bs4 import BeautifulSoup
 from commonmark.blocks import Parser
-from genanki import deck
+from genanki.deck import Deck
+
+from markdown_anki_decks.sync import sync_deck
+from markdown_anki_decks.utils import print_success
 
 app = typer.Typer()
 
 
 @app.command("convert")
-def convertMarkdown(source: Path, output: Path):
-    """our first CLI with typer!"""
+def convertMarkdown(
+    input_dir: Path = typer.Argument(...),
+    output_dir: Path = typer.Argument(...),
+    sync: bool = typer.Argument(False),
+    deck_title_prefix: str = typer.Argument(""),
+    delete_cards: bool = typer.Argument(False),
+):
     parser = commonmark.Parser()
 
     # iterate over the source directory
-    for root, subdirs, files in os.walk(source):
+    for root, _, files in os.walk(input_dir):
         for file in files:
             if is_markdown_file(file):
-                deck = parse_markdown(parser, os.path.join(root, file))
+                deck = parse_markdown(
+                    parser, os.path.join(root, file), deck_title_prefix
+                )
                 package = genanki.Package(deck)
                 # add all image files to the package
-                package.media_files = image_files(source)
-                package.write_to_file(os.path.join(output, f"{Path(file).stem}.apkg"))
+                package.media_files = image_files(input_dir)
+                path_to_pkg_file = os.path.join(output_dir, f"{Path(file).stem}.apkg")
+                package.write_to_file(path_to_pkg_file)
+                print_success(f"created apkg for deck {deck.name}")
+                if sync:
+                    sync_deck(deck, Path(path_to_pkg_file), delete_cards)
 
 
-def parse_markdown(parser: Parser, file: str) -> deck:
+def parse_markdown(parser: Parser, file: str, deck_title_prefix: str) -> Deck:
     markdown_string = read_file(file)
     ast = parser.parse(markdown_string)
     renderer = commonmark.HtmlRenderer()
@@ -40,10 +54,7 @@ def parse_markdown(parser: Parser, file: str) -> deck:
     model = genanki.Model(
         model_id=integer_hash("Simple Model"),
         name="Simple Model",
-        fields=[
-            {"name": "Question"},
-            {"name": "Answer"},
-        ],
+        fields=[{"name": "Question"}, {"name": "Answer"}, {"name": "Guid"}],
         templates=[
             {
                 "name": "Card 1",
@@ -59,6 +70,7 @@ def parse_markdown(parser: Parser, file: str) -> deck:
     h1 = soup.h1
     if h1 is not None and h1.text:
         deck_title = h1.text
+    deck_title = deck_title_prefix + deck_title
 
     # create the deck
     deck_id = integer_hash(deck_title)
@@ -96,14 +108,14 @@ def parse_markdown(parser: Parser, file: str) -> deck:
 
 
 # genanki Note which has a unique id based on the deck and the question
+# also has a field for the guid so the guid can be accessed in queries
 class FrontIdentifierNote(genanki.Note):
     def __init__(self, deck_id, model=None, fields=None, sort_field=None, tags=None):
+        guid = genanki.guid_for(fields[0], deck_id)
+        if fields is not None:
+            fields.append(guid)
         super().__init__(
-            model=model,
-            fields=fields,
-            sort_field=sort_field,
-            tags=tags,
-            guid=genanki.guid_for(fields[0], deck_id),
+            model=model, fields=fields, sort_field=sort_field, tags=tags, guid=guid
         )
 
 

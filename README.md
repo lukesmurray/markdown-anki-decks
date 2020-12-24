@@ -26,10 +26,6 @@ Make sure you have a python version of 3.7 or greater installed.
 
 This will install the `mdankideck` cli tool.
 
-## Usage
-
-Run `mdankideck input output` to convert the markdown files in the input directory to `apkg` files in the output directory.
-
 ## Tutorial
 
 Markdown anki decks converts all markdown files in an input directory to `apkg` files.
@@ -56,7 +52,39 @@ The `apkg` files are stored in an output directory.
 4. Run `mdankideck input output` to convert the markdown files in the input directory to `apkg` files in the output directory.
 5. Import `apkg` files as decks into anki.
 
-## Images
+## Usage
+
+Run `mdankideck input output` to convert the markdown files in the input directory to `apkg` files in the output directory.
+
+```
+Arguments:
+  INPUT_DIR            [required]           The input directory containing markdown files. Browsed recursively.
+  OUTPUT_DIR           [required]           The output directory for storing apkg files.
+  [SYNC]               [default: False]     Whether to sync the decks to anki
+  [DECK_TITLE_PREFIX]  [default: ]          A prefix added to every deck title
+  [DELETE_CARDS]       [default: False]     Whether to delete cards from anki during sync. If sync is false this has no effect.
+```
+
+### Syncing
+
+Markdown anki decks can use [AnkiConnect](https://ankiweb.net/shared/info/2055492159) to sync the created decks immediately to anki.
+First you need to install AnkiConnect as an add on in Anki.
+Then you need to set the Sync Argument to true.
+By default if you delete a question in markdown we do not delete the question in Anki during sync.
+However you can delete missing questions in Anki during sync by setting Delete cards to true.
+
+If you see an error message `Unable to reach anki connect. Make sure anki is running and the Anki Connect addon is installed.`, make sure you have installed anki connect and that you are running anki.
+
+### Subdecks
+
+You can use the Deck title prefix option to make all your markdown decks part of a single subdeck.
+Anki automatically creates subdecks based on deck names.
+
+> Decks can contain other decks, which allows you to organize decks into a tree. Anki uses “::” to show different levels. A deck called “Chinese::Hanzi” refers to a “Hanzi” deck, which is part of a “Chinese” deck. If you select “Hanzi” then only the Hanzi cards will be shown; if you select “Chinese” then all Chinese cards, including Hanzi cards, will be shown. [Source](https://docs.ankiweb.net/#/getting-started?id=decks)
+
+I use a prefix `md::` to store all my markdown decks in a subdeck called `md`.
+
+### Images
 
 Markdown anki decks support images which are stored in the same folder as the markdown file they are referenced by.
 
@@ -68,10 +96,14 @@ All images must have unique filenames even if they are stored in different folde
 
 These are limitations of anki not Markdown anki decks.
 
-## Questions
+## Limitations
 
+Markdown anki decks makes some assumptions to enable syncing.
+Cards are uniquely identified by their deck name and question.
+If you change the deck name or the question you will lose the card history.
+All deck names must be unique.
 All questions in a single deck must be unique.
-Two questions in the same deck which are identical will have the same id and will lead to a collision.
+Identical questions in separate decks are ok.
 
 ## Design
 

@@ -2,4 +2,4 @@
 - [ ] add an optional salt so decks with the same name can be used across multiple programs
 - [ ] add checks for missing contents/headers
 - [x] support embedded images
-- [ ] show example of using anki connect to sync created decks
+- [x] use anki connect to sync created decks
