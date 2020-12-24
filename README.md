@@ -124,6 +124,6 @@ Run `poetry run mdankideck testData/input testData/output True "test::" True` to
 
 Run `poetry run cz bump --check-consistency` to update the changelog and create a tag.
 
-Create the build with `poetry build`.
+Run `poetry publish --build` to publish the pack to pypi.
 
-Publish the build with `poetry publish`.
+`git push --tags && git push` to update github.
