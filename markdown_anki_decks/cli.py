@@ -3,11 +3,11 @@ import itertools
 import os
 from pathlib import Path
 
-import commonmark
+import frontmatter
 import genanki
+import markdown
 import typer
 from bs4 import BeautifulSoup
-from commonmark.blocks import Parser
 from genanki.deck import Deck
 
 from markdown_anki_decks.sync import sync_deck
@@ -24,15 +24,12 @@ def convertMarkdown(
     deck_title_prefix: str = typer.Argument(""),
     delete_cards: bool = typer.Argument(False),
 ):
-    parser = commonmark.Parser()
 
     # iterate over the source directory
     for root, _, files in os.walk(input_dir):
         for file in files:
             if is_markdown_file(file):
-                deck = parse_markdown(
-                    parser, os.path.join(root, file), deck_title_prefix
-                )
+                deck = parse_markdown(os.path.join(root, file), deck_title_prefix)
                 package = genanki.Package(deck)
                 # add all image files to the package
                 package.media_files = image_files(input_dir)
@@ -43,11 +40,9 @@ def convertMarkdown(
                     sync_deck(deck, Path(path_to_pkg_file), delete_cards)
 
 
-def parse_markdown(parser: Parser, file: str, deck_title_prefix: str) -> Deck:
-    markdown_string = read_file(file)
-    ast = parser.parse(markdown_string)
-    renderer = commonmark.HtmlRenderer()
-    html = renderer.render(ast)
+def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
+    markdown_string = frontmatter.loads(read_file(file)).content
+    html = markdown.markdown(markdown_string, extensions=["fenced_code"])
     soup = BeautifulSoup(html, "html.parser")
 
     # model for an anki deck
@@ -126,7 +121,7 @@ def soup_to_html_string(soup):
 
 # convert a file to a string
 def read_file(file):
-    with open(file) as f:
+    with open(file, "r", encoding="utf-8") as f:
         markdown_string = f.read()
     return markdown_string
 

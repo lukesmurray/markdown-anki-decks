@@ -107,7 +107,7 @@ Identical questions in separate decks are ok.
 
 ## Design
 
-The markdown files are parsed with [commonmark](https://pypi.org/project/commonmark/). The resulting html is then parsed with [beautifulsoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
+The markdown files are parsed with [python-markdown](https://pypi.org/project/Markdown/). The resulting html is then parsed with [beautifulsoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
 Finally the cards are created with [genanki](https://github.com/kerrickstaley/genanki).
 The cli is implemented using [typer](https://github.com/tiangolo/typer) and the program is packaged using [poetry](https://github.com/python-poetry/poetry).
 
@@ -117,6 +117,8 @@ Happy to discuss additional features if you open up an issue.
 
 We use commitizen for commits.
 Run `poetry run cz commit` to make a commit.
+
+Run `poetry run mdankideck testData/input testData/output True "test::" True` to convert the test data into decks.
 
 ### Releases
 
