@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "markdown-anki-decks"
-version = "0.2.0"
+version = "0.2.1"
 description = "A command line program to convert markdown files into anki decks."
 authors = ["Luke Murray <lukepigeonmail@gmail.com>"]
 license = "MIT"
@@ -36,7 +36,7 @@ pre-commit = "^2.9.3"
 mdankideck = "markdown_anki_decks.cli:main"
 
 [tool.commitizen]
-version = "0.2.0"
+version = "0.2.1"
 version_files = [
     "pyproject.toml:version",
     "markdown_anki_decks/__init__.py",

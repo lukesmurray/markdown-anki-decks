@@ -1,3 +1,9 @@
+## 0.2.1 (2020-12-24)
+
+### Fix
+
+- **markdown**: switch from commonmark to python-markdown to avoid frontmatter bugs
+
 ## 0.2.0 (2020-12-24)
 
 ### Feat
