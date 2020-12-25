@@ -42,7 +42,9 @@ def convertMarkdown(
 
 def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     markdown_string = frontmatter.loads(read_file(file)).content
-    html = markdown.markdown(markdown_string, extensions=["fenced_code"])
+    html = markdown.markdown(
+        markdown_string, extensions=["fenced_code", "sane_lists", "tables"]
+    )
     soup = BeautifulSoup(html, "html.parser")
 
     # model for an anki deck
