@@ -1,3 +1,9 @@
+## 0.2.3 (2020-12-25)
+
+### Fix
+
+- **css**: add some basic css styling to fix code block alignment on mobile
+
 ## 0.2.2 (2020-12-25)
 
 ### Fix
