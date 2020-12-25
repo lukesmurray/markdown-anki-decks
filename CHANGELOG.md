@@ -1,3 +1,9 @@
+## 0.2.2 (2020-12-25)
+
+### Fix
+
+- **markdown**: add support for tables and fix support for lists
+
 ## 0.2.1 (2020-12-24)
 
 ### Fix
