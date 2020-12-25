@@ -55,11 +55,11 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
         templates=[
             {
                 "name": "Card 1",
-                "qfmt": "{{Question}}",
-                "afmt": '{{FrontSide}}<hr id="answer">{{Answer}}',
+                "qfmt": '<div class="card">{{Question}}</div>',
+                "afmt": '<div class="card">{{FrontSide}}<hr id="answer">{{Answer}}</div>',
             },
         ],
-        # TODO(lukemurray): add css?
+        css=read_css(),
     )
 
     # get the deck title
@@ -152,6 +152,11 @@ def image_files(source: Path):
             source.rglob("*.gif"),
         )
     )
+
+
+def read_css():
+    path = Path(__file__).parent / "./styles/markdown.css"
+    return path.read_text("utf-8")
 
 
 def main():
