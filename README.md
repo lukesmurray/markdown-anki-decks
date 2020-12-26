@@ -96,6 +96,19 @@ All images must have unique filenames even if they are stored in different folde
 
 These are limitations of anki not Markdown anki decks.
 
+### Styling Cards
+
+The cards are styled with minimal css [markdown.css](markdown_anki_decks/styles/markdown.css).
+Syntax highlighting is provided via [pygments](https://github.com/pygments/pygments).
+The syntax highlighting uses the pygments default theme.
+The styling is not currently customizable by the user but that functionality can be added if it is desired.
+
+### Markdown Features
+
+Most commonly used markdown features should work without any issues.
+If there is a Markdown feature you want to use and it is supported by one of the [official extensions for python-markdown](https://python-markdown.github.io/extensions/#officially-supported-extensions) there is good chance it can be added to the project.
+Check out `cli.py` to see the list of currently enabled extensions. (Search for `extensions=`)
+
 ## Limitations
 
 Markdown anki decks makes some assumptions to enable syncing.
@@ -119,6 +132,9 @@ We use commitizen for commits.
 Run `poetry run cz commit` to make a commit.
 
 Run `poetry run mdankideck testData/input testData/output True "test::" True` to convert the test data into decks.
+
+Run `poetry run pygmentize -S default -f html -a .codehilite > ./markdown_anki_decks/styles/pygments.css` to create a pygments stylesheet.
+The `-S` flag is used to specify the style. Run `poetry run pygmentize -L style` to list the styles pygmentize can use. Replace `default` with any of the styles to use a different style.
 
 ### Releases
 

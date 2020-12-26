@@ -371,6 +371,28 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "pygments"
+version = "2.7.3"
+description = "Pygments is a syntax highlighting package written in Python."
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
+name = "pygments-graphql"
+version = "1.0.0"
+description = "Pygments lexer for GraphQL files"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pygments = "*"
+
+[package.extras]
+dev = ["flake8", "pip-tools", "tox"]
+
+[[package]]
 name = "pyparsing"
 version = "2.4.7"
 description = "Python parsing module"
@@ -574,7 +596,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.0"
-content-hash = "46aed63eda1a754c3ad577467e2f249a180865054b4adb9614068c48b607d422"
+content-hash = "461b5f0a4eb02acb9e51d8ef77590d3cd25386b5aa2f4984a4b3f7e844cd3202"
 
 [metadata.files]
 appdirs = [
@@ -742,6 +764,14 @@ pycodestyle = [
 pyflakes = [
     {file = "pyflakes-2.2.0-py2.py3-none-any.whl", hash = "sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92"},
     {file = "pyflakes-2.2.0.tar.gz", hash = "sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8"},
+]
+pygments = [
+    {file = "Pygments-2.7.3-py3-none-any.whl", hash = "sha256:f275b6c0909e5dafd2d6269a656aa90fa58ebf4a74f8fcf9053195d226b24a08"},
+    {file = "Pygments-2.7.3.tar.gz", hash = "sha256:ccf3acacf3782cbed4a989426012f1c535c9a90d3a7fc3f16d231b9372d2b716"},
+]
+pygments-graphql = [
+    {file = "pygments-graphql-1.0.0.tar.gz", hash = "sha256:a330778d53d0f2b97e9c42573926da6d6f3d6e19748bab1b374d46db1167b9a4"},
+    {file = "pygments_graphql-1.0.0-py3-none-any.whl", hash = "sha256:696b727a7933f3273defdfd16d370f36c5c126c8a4903dd6e3fb2dae5a4236b9"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},

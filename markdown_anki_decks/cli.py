@@ -43,7 +43,8 @@ def convertMarkdown(
 def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     markdown_string = frontmatter.loads(read_file(file)).content
     html = markdown.markdown(
-        markdown_string, extensions=["fenced_code", "sane_lists", "tables"]
+        markdown_string,
+        extensions=["fenced_code", "sane_lists", "tables", "codehilite"],
     )
 
     soup = BeautifulSoup(html, "html.parser")
@@ -161,8 +162,10 @@ def image_files(source: Path):
 
 
 def read_css():
-    path = Path(__file__).parent / "./styles/markdown.css"
-    return path.read_text("utf-8")
+    # merge the css files
+    markdown_css = Path(__file__).parent / "./styles/markdown.css"
+    pygments_css = Path(__file__).parent / "./styles/pygments.css"
+    return f'{markdown_css.read_text("utf-8")}\n{pygments_css.read_text("utf-8")}'
 
 
 def main():

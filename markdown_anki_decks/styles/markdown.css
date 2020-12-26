@@ -1,3 +1,9 @@
+/* override centered text which messes up code blocks*/
 .card {
   text-align: left;
+}
+
+/* fix text color of codeblocks */
+.codehilite {
+  color: #000000;
 }
