@@ -1,3 +1,10 @@
+## 0.2.4 (2020-12-26)
+
+### Fix
+
+- **codeblocks**: add syntax highlighting to code blocks
+- **markdown**: strip comments from markdown files before exporting to anki
+
 ## 0.2.3 (2020-12-25)
 
 ### Fix
