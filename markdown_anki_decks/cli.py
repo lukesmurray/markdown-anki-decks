@@ -7,7 +7,7 @@ import frontmatter
 import genanki
 import markdown
 import typer
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from genanki.deck import Deck
 
 from markdown_anki_decks.sync import sync_deck
@@ -45,7 +45,13 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     html = markdown.markdown(
         markdown_string, extensions=["fenced_code", "sane_lists", "tables"]
     )
+
     soup = BeautifulSoup(html, "html.parser")
+
+    # strip all comments from the html
+    comments = soup.findAll(text=lambda text: isinstance(text, Comment))
+    for comment in comments:
+        comment.extract()
 
     # model for an anki deck
     model = genanki.Model(
