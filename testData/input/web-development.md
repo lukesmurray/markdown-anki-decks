@@ -10,4 +10,12 @@ draft: true
 
 ## New Question
 
-new answer
+This is an example of a card which contains code
+
+```html
+<body>
+  <header>Header</header>
+  <main>Main</main>
+  <footer>Footer</footer>
+</body>
+```

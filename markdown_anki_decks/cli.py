@@ -165,6 +165,7 @@ def read_css(file: str, metadata: dict) -> str:
     # merge the css files
     markdown_css = Path(__file__).parent / "./styles/markdown.css"
     pygments_css = Path(__file__).parent / "./styles/pygments.css"
+    pygments_dark_css = Path(__file__).parent / "./styles/pygments-dark.css"
     custom_css_contents = []
     if "css" in metadata:
         custom_css_paths = metadata["css"]
@@ -177,7 +178,7 @@ def read_css(file: str, metadata: dict) -> str:
 
     custom_css = "\n".join(custom_css_contents)
 
-    return f'{markdown_css.read_text("utf-8")}\n{pygments_css.read_text("utf-8")}\n{custom_css}'
+    return f'{markdown_css.read_text("utf-8")}\n{pygments_css.read_text("utf-8")}\n{pygments_dark_css.read_text("utf-8")}\n{custom_css}'
 
 
 def main():

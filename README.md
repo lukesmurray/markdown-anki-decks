@@ -217,7 +217,10 @@ Run `poetry run cz commit` to make a commit.
 Run `poetry run mdankideck testData/input testData/output True "test::" True` to convert the test data into decks.
 
 Run `poetry run pygmentize -S default -f html -a .codehilite > ./markdown_anki_decks/styles/pygments.css` to create a pygments stylesheet.
+Run `poetry run pygmentize -S monokai -f html -a ".nightMode .codehilite" > ./markdown_anki_decks/styles/pygments-dark.css` to create the dark mode stylesheet.
 The `-S` flag is used to specify the style. Run `poetry run pygmentize -L style` to list the styles pygmentize can use. Replace `default` with any of the styles to use a different style.
+
+Currently use `default` for light mode and `monokai` for dark mode.
 
 ### Releases
 
