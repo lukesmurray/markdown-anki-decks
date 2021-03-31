@@ -174,6 +174,24 @@ Most commonly used markdown features should work without any issues.
 If there is a Markdown feature you want to use and it is supported by one of the [official extensions for python-markdown](https://python-markdown.github.io/extensions/#officially-supported-extensions) there is good chance it can be added to the project.
 Check out `cli.py` to see the list of currently enabled extensions. (Search for `extensions=`)
 
+#### Multiline questions
+
+You may want to render complex questions which span multiple lines.
+You can use the fact that any `h2` element is assumed to be a question combined with the fact that the extension supports embedding markdown in html if you use the special attribute `markdown="block"` on the html element. It's much easier to see with an example.
+
+```md
+<h2 markdown="block">
+- this question
+- is actually
+- a markdown list
+
+You can even add math to your questions \\(\sqrt{2}\\)
+
+</h2>
+```
+
+For more information [see the `md_in_html` documentation](https://github.com/Python-Markdown/markdown/blob/master/docs/extensions/md_in_html.md)
+
 ## Limitations
 
 Markdown anki decks makes some assumptions to enable syncing.

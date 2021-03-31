@@ -44,7 +44,7 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     metadata, markdown_string = frontmatter.parse(read_file(file))
     html = markdown.markdown(
         markdown_string,
-        extensions=["fenced_code", "sane_lists", "tables", "codehilite"],
+        extensions=["fenced_code", "sane_lists", "tables", "codehilite", "md_in_html"],
     )
 
     soup = BeautifulSoup(html, "html.parser")
