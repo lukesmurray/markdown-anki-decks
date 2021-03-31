@@ -33,6 +33,7 @@ commitizen = "^2.11.1"
 pre-commit = "^2.9.3"
 Pygments = "^2.7.3"
 pygments-graphql = "^1.0.0"
+mypy = "^0.812"
 
 [tool.poetry.scripts]
 mdankideck = "markdown_anki_decks.cli:main"

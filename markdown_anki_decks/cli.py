@@ -41,7 +41,7 @@ def convertMarkdown(
 
 
 def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
-    markdown_string = frontmatter.loads(read_file(file)).content
+    metadata, markdown_string = frontmatter.parse(read_file(file))
     html = markdown.markdown(
         markdown_string,
         extensions=["fenced_code", "sane_lists", "tables", "codehilite"],
@@ -54,27 +54,27 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     for comment in comments:
         comment.extract()
 
-    # model for an anki deck
-    model = genanki.Model(
-        model_id=integer_hash("Simple Model"),
-        name="Simple Model",
-        fields=[{"name": "Question"}, {"name": "Answer"}, {"name": "Guid"}],
-        templates=[
-            {
-                "name": "Card 1",
-                "qfmt": '<div class="card">{{Question}}</div>',
-                "afmt": '<div class="card">{{FrontSide}}<hr id="answer">{{Answer}}</div>',
-            },
-        ],
-        css=read_css(),
-    )
-
     # get the deck title
     deck_title = Path(file).stem
     h1 = soup.h1
     if h1 is not None and h1.text:
         deck_title = h1.text
     deck_title = deck_title_prefix + deck_title
+
+    # model for an anki deck
+    model = genanki.Model(
+        model_id=integer_hash(f"{deck_title} model"),
+        name=f"{deck_title} model",
+        fields=[{"name": "Question"}, {"name": "Answer"}, {"name": "Guid"}],
+        templates=[
+            {
+                "name": "Card 1",
+                "qfmt": '<div class="card"><div class="question">{{Question}}</div></div>',
+                "afmt": '<div class="card"><div class="question">{{FrontSide}}</div><hr><div class="answer">{{Answer}}</div></div>',
+            },
+        ],
+        css=read_css(file, metadata),
+    )
 
     # create the deck
     deck_id = integer_hash(deck_title)
@@ -161,11 +161,23 @@ def image_files(source: Path):
     )
 
 
-def read_css():
+def read_css(file: str, metadata: dict):
     # merge the css files
     markdown_css = Path(__file__).parent / "./styles/markdown.css"
     pygments_css = Path(__file__).parent / "./styles/pygments.css"
-    return f'{markdown_css.read_text("utf-8")}\n{pygments_css.read_text("utf-8")}'
+    custom_css_contents = []
+    if "css" in metadata:
+        custom_css_paths = metadata["css"]
+        if not isinstance(custom_css_paths, list):
+            custom_css_paths = [custom_css_paths]
+        for custom_css_path in custom_css_paths:
+            custom_css_contents.append(
+                (Path(file).parent / custom_css_path).read_text("utf-8")
+            )
+
+    custom_css = "\n".join(custom_css_contents)
+
+    return f'{markdown_css.read_text("utf-8")}\n{pygments_css.read_text("utf-8")}\n{custom_css}'
 
 
 def main():

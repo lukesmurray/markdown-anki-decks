@@ -103,6 +103,50 @@ Syntax highlighting is provided via [pygments](https://github.com/pygments/pygme
 The syntax highlighting uses the pygments default theme.
 The styling is not currently customizable by the user but that functionality can be added if it is desired.
 
+#### Custom Styling
+
+You can add custom styling using yaml frontmatter. The css key takes a path to a css file as a string or an array of paths to multiple css files.
+
+```yaml
+---
+css: custom-styles.css
+---
+
+```
+
+```yaml
+---
+css: ["one.css", "two.css", "three.css", "four.css"]
+---
+
+```
+
+The paths to the css files are assumed to be relative to the markdown file.
+Cards have the following html structure.
+
+```html
+<!-- the question card -->
+<div class="card">
+  <div class="question">{{Question}}</div>
+</div>
+
+<!-- the answer card -->
+<div class="card">
+  <div class="question">{{FrontSide}}</div>
+  <hr />
+  <div class="answer">{{Answer}}</div>
+</div>
+```
+
+So you can style cards in general using the `.card` selector and you can style questions and answers using the `.question` and `.answer` selector.
+
+```css
+/* apply red background to all cards */
+.card {
+  background: red;
+}
+```
+
 ### Markdown Features
 
 Most commonly used markdown features should work without any issues.

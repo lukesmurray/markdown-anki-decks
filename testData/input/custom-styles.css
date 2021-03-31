@@ -1,0 +1,11 @@
+.card {
+  background: hsl(0, 100%, 89%);
+}
+
+.answer {
+  background: hsl(110, 29%, 16%);
+}
+
+.question {
+  color: hsl(310, 82%, 47%);
+}

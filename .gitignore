@@ -3,3 +3,4 @@ dist
 
 # ignore all the anki decks
 *.apkg
+.direnv
