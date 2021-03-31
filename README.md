@@ -147,6 +147,27 @@ So you can style cards in general using the `.card` selector and you can style q
 }
 ```
 
+### Mathjax
+
+[Anki supports mathjax out of the box](https://docs.ankiweb.net/#/math?id=mathjax). However you need to be careful with how markdown escapes characters. The following code snippet will not render as mathjax when you convert it because markdown will assume you are trying to escape the parentheses and will render the text `(\sqrt{x})`
+
+```md
+\(\sqrt{x}\)
+```
+
+You need to escape the backslashes by using double backslashes.
+The following snippet will work to render math using mathjax.
+
+```md
+<!-- this will render inline math -->
+
+\\(\sqrt{x}\\)
+
+<!-- this will render block math -->
+
+\\[\sqrt{x}\\]
+```
+
 ### Markdown Features
 
 Most commonly used markdown features should work without any issues.

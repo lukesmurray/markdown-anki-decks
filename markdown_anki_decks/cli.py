@@ -161,7 +161,7 @@ def image_files(source: Path):
     )
 
 
-def read_css(file: str, metadata: dict):
+def read_css(file: str, metadata: dict) -> str:
     # merge the css files
     markdown_css = Path(__file__).parent / "./styles/markdown.css"
     pygments_css = Path(__file__).parent / "./styles/pygments.css"
