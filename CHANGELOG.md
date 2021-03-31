@@ -1,3 +1,11 @@
+## 0.3.0 (2021-03-31)
+
+### Feat
+
+- **darkMode**: add dark mode syntax highlighting
+- **md**: add support for multiline questions
+- **css**: add custom styling support for decks
+
 ## 0.2.4 (2020-12-26)
 
 ### Fix
