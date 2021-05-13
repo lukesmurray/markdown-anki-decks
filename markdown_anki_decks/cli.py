@@ -70,7 +70,7 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
             {
                 "name": "Card 1",
                 "qfmt": '<div class="card"><div class="question">{{Question}}</div></div>',
-                "afmt": '<div class="card"><div class="question">{{FrontSide}}</div><hr><div class="answer">{{Answer}}</div></div>',
+                "afmt": '<div class="card"><div class="question">{{Question}}</div><hr><div class="answer">{{Answer}}</div></div>',
             },
         ],
         css=read_css(file, metadata),

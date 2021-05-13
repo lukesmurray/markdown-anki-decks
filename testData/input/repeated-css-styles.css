@@ -1,0 +1,22 @@
+.card {
+  font-family: Helvetica;
+  text-align: center;
+  color: #fff;
+  background-color: #282a36;
+}
+
+.question {
+  background-color: #44475a;
+  border: 2px solid #bd93f9;
+  color: #f8f8f2;
+  font-size: 15px;
+  margin: 0 auto;
+  width: 75%;
+}
+
+.answer {
+  background-color: #44475a;
+  border: 2px solid #50fa7b;
+  color: #f8f8f2;
+  font-size: 20px;
+}
