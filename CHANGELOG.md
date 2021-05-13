@@ -1,3 +1,9 @@
+## 0.3.1 (2021-05-13)
+
+### Fix
+
+- **cli.py**: change backside template to remove accidental duplication of frontside styling
+
 ## 0.3.0 (2021-03-31)
 
 ### Feat
