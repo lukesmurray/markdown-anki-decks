@@ -1,3 +1,9 @@
+## 0.3.2 (2021-05-17)
+
+### Fix
+
+- **sync**: add code to sync templates and model styling if sync is true
+
 ## 0.3.1 (2021-05-13)
 
 ### Fix
