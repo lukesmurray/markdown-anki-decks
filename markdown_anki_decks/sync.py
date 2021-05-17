@@ -3,7 +3,7 @@ import typing as t
 import urllib.request
 from pathlib import Path
 
-from genanki import Deck
+from genanki import Deck, Model
 from genanki.note import Note
 
 from markdown_anki_decks.utils import print_error, print_success
@@ -104,3 +104,39 @@ def sync_deck(deck: Deck, pathToDeckPackage: Path, delete_cards: bool):
             except Exception as e:
                 print_error(f"Unable to sync removed cards from {deck.name}")
                 print_error(f"\t{e}")
+
+
+# synchronize the model and styling in the deck
+def sync_model(model: Model):
+    if anki_connect_is_live():
+        try:
+            invoke(
+                "updateModelTemplates",
+                model={
+                    "name": model.name,
+                    "templates": {
+                        t["name"]: {
+                            "qfmt": t["qfmt"],
+                            "afmt": t["afmt"],
+                        }
+                        for t in model.templates
+                    },
+                },
+            )
+            print_success(f"\tUpdated model {model.name} template")
+        except Exception as e:
+            print_error(f"\tUnable to update model {model.name} template")
+            print_error(f"\t\t{e}")
+
+        try:
+            invoke(
+                "updateModelStyling",
+                model={
+                    "name": model.name,
+                    "css": model.css,
+                },
+            )
+            print_success(f"\tUpdated model {model.name} css")
+        except Exception as e:
+            print_error(f"\tUnable to update model {model.name} css")
+            print_error(f"\t\t{e}")

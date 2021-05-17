@@ -10,7 +10,7 @@ import typer
 from bs4 import BeautifulSoup, Comment
 from genanki.deck import Deck
 
-from markdown_anki_decks.sync import sync_deck
+from markdown_anki_decks.sync import sync_deck, sync_model
 from markdown_anki_decks.utils import print_success
 
 app = typer.Typer()
@@ -18,11 +18,25 @@ app = typer.Typer()
 
 @app.command("convert")
 def convertMarkdown(
-    input_dir: Path = typer.Argument(...),
-    output_dir: Path = typer.Argument(...),
-    sync: bool = typer.Argument(False),
-    deck_title_prefix: str = typer.Argument(""),
-    delete_cards: bool = typer.Argument(False),
+    input_dir: Path = typer.Argument(
+        ...,
+        help="The input directory. Contains markdown files which will be converted to anki decks.",
+    ),
+    output_dir: Path = typer.Argument(
+        ..., help="The output directory. Anki .apkg files will be written here."
+    ),
+    sync: bool = typer.Argument(
+        False,
+        help="Whether or not to synchronize the output with anki using anki connect.",
+    ),
+    deck_title_prefix: str = typer.Argument(
+        "",
+        help="Can be used to make your markdown decks part of a single subdeck. Anki uses `::` to indicate sub decks. `markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
+    ),
+    delete_cards: bool = typer.Argument(
+        False,
+        help="Whether to delete cards from anki during sync. If sync is false this has no effect.",
+    ),
 ):
 
     # iterate over the source directory
@@ -35,9 +49,11 @@ def convertMarkdown(
                 package.media_files = image_files(input_dir)
                 path_to_pkg_file = os.path.join(output_dir, f"{Path(file).stem}.apkg")
                 package.write_to_file(path_to_pkg_file)
-                print_success(f"created apkg for deck {deck.name}")
+                print_success(f"Created apkg for deck {deck.name}")
                 if sync:
                     sync_deck(deck, Path(path_to_pkg_file), delete_cards)
+                    for model in deck.models.values():
+                        sync_model(model)
 
 
 def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
