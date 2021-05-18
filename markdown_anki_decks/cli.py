@@ -1,6 +1,7 @@
 import hashlib
 import itertools
 import os
+import re
 from pathlib import Path
 
 import frontmatter
@@ -10,11 +11,20 @@ import typer
 from bs4 import BeautifulSoup, Comment
 from bs4.element import Tag
 from genanki.deck import Deck
+from genanki.model import Model
 
 from markdown_anki_decks.sync import sync_deck, sync_model
 from markdown_anki_decks.utils import print_success
 
 app = typer.Typer()
+
+
+def version_callback(value: bool):
+    from . import __version__
+
+    if value:
+        typer.echo(f"Markdown Anki Decks: {__version__}")
+        raise typer.Exit()
 
 
 @app.command("convert")
@@ -26,17 +36,28 @@ def convertMarkdown(
     output_dir: Path = typer.Argument(
         ..., help="The output directory. Anki .apkg files will be written here."
     ),
-    sync: bool = typer.Argument(
+    sync: bool = typer.Option(
         False,
+        "--sync",
         help="Whether or not to synchronize the output with anki using anki connect.",
     ),
-    deck_title_prefix: str = typer.Argument(
+    deck_title_prefix: str = typer.Option(
         "",
+        "--prefix",
         help="Can be used to make your markdown decks part of a single subdeck. Anki uses `::` to indicate sub decks. `markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
     ),
-    delete_cards: bool = typer.Argument(
+    delete_cards: bool = typer.Option(
         False,
+        "--delete",
         help="Whether to delete cards from anki during sync. If sync is false this has no effect.",
+    ),
+    cloze: bool = typer.Option(
+        False,
+        "--cloze",
+        help="Whether to support cloze syntax",
+    ),
+    version: bool = typer.Option(
+        False, "--version", callback=version_callback, help="Show version information"
     ),
 ):
 
@@ -44,7 +65,9 @@ def convertMarkdown(
     for root, _, files in os.walk(input_dir):
         for file in files:
             if is_markdown_file(file):
-                deck = parse_markdown(os.path.join(root, file), deck_title_prefix)
+                deck = parse_markdown(
+                    os.path.join(root, file), deck_title_prefix, cloze
+                )
                 package = genanki.Package(deck)
                 # add all image files to the package
                 package.media_files = image_files(input_dir)
@@ -57,12 +80,22 @@ def convertMarkdown(
                         sync_model(model)
 
 
+ANKI_CLOZE_REGEXP = re.compile(r"{{c\d+::[\s\S]+?}}")
+
+
+def has_clozes(text):
+    """Checks whether text actually has cloze deletions."""
+    return bool(ANKI_CLOZE_REGEXP.search(text))
+
+
 # check if a tag is a question
 def is_question_tag(tag: Tag):
     return tag.name == "h2" or (isinstance(tag, Tag) and tag.has_attr("data-question"))
 
 
-def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
+def parse_markdown(
+    file: str, deck_title_prefix: str, generate_cloze_model: bool
+) -> Deck:
     metadata, markdown_string = frontmatter.parse(read_file(file))
     html = markdown.markdown(
         markdown_string,
@@ -96,6 +129,23 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
             },
         ],
         css=read_css(file, metadata),
+        model_type=Model.FRONT_BACK,
+    )
+
+    # model for an anki deck
+    cloze_model = genanki.Model(
+        model_id=integer_hash(f"{deck_title} cloze model"),
+        name=f"{deck_title} cloze model",
+        fields=[{"name": "Question"}, {"name": "Answer"}, {"name": "Guid"}],
+        templates=[
+            {
+                "name": "Card 1",
+                "qfmt": '<div class="card"><div class="question">{{cloze:Question}}</div></div>',
+                "afmt": '<div class="card"><div class="question">{{cloze:Question}}</div><hr><div class="answer">{{Answer}}</div></div>',
+            },
+        ],
+        css=read_css(file, metadata),
+        model_type=Model.CLOZE,
     )
 
     # create the deck
@@ -104,6 +154,8 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
 
     # add model to deeck
     deck.add_model(model)
+    if generate_cloze_model:
+        deck.add_model(cloze_model)
 
     # get the notes
     note_headers = soup.find_all(is_question_tag, recursive=False)
@@ -120,14 +172,20 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
 
         # wrap the contents in a section tag. the section is the answer.
         answer = soup.new_tag("section")
-        contents[0].wrap(answer)
-        for content in contents[1:]:
-            answer.append(content)
+        if len(contents) > 0:
+            contents[0].wrap(answer)
+            for content in contents[1:]:
+                answer.append(content)
 
         # create the note using the simple model
         note = FrontIdentifierNote(
             deck_id,
-            model=model,
+            model=(
+                cloze_model
+                if generate_cloze_model
+                and has_clozes(soup_to_plaintext_string(question))
+                else model
+            ),
             fields=[soup_to_html_string(question), soup_to_html_string(answer)],
         )
         deck.add_note(note)
@@ -150,6 +208,10 @@ class FrontIdentifierNote(genanki.Note):
 # convert beautiful soup object to a string
 def soup_to_html_string(soup):
     return soup.prettify(formatter="html5")
+
+
+def soup_to_plaintext_string(soup):
+    return soup.get_text()
 
 
 # convert a file to a string

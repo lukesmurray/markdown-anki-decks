@@ -54,36 +54,60 @@ The `apkg` files are stored in an output directory.
 
 ## Usage
 
-Run `mdankideck input output` to convert the markdown files in the input directory to `apkg` files in the output directory.
+`mdankideck` comes with built in documentation. Run `mdankideck --help` to see it.
 
 ```
+Usage: mdankideck [OPTIONS] INPUT_DIR OUTPUT_DIR
+
 Arguments:
-  INPUT_DIR            [required]           The input directory containing markdown files. Browsed recursively.
-  OUTPUT_DIR           [required]           The output directory for storing apkg files.
-  [SYNC]               [default: False]     Whether to sync the decks to anki
-  [DECK_TITLE_PREFIX]  [default: ]          A prefix added to every deck title
-  [DELETE_CARDS]       [default: False]     Whether to delete cards from anki during sync. If sync is false this has no effect.
+  INPUT_DIR   The input directory. Contains markdown files which will be
+              converted to anki decks.  [required]
+
+  OUTPUT_DIR  The output directory. Anki .apkg files will be written here.
+              [required]
+
+
+Options:
+  --sync                Whether or not to synchronize the output with anki
+                        using anki connect.  [default: False]
+
+  --prefix TEXT         Can be used to make your markdown decks part of a
+                        single subdeck. Anki uses `::` to indicate sub decks.
+                        `markdown-decks::` could be used to make all generated
+                        decks part of a single root deck `markdown-decks`
+                        [default: ]
+
+  --delete              Whether to delete cards from anki during sync. If sync
+                        is false this has no effect.  [default: False]
+
+  --cloze               Whether to support cloze syntax  [default: False]
+  --version             Show version information  [default: False]
+  --install-completion  Install completion for the current shell.
+  --show-completion     Show completion for the current shell, to copy it or
+                        customize the installation.
+
+  --help                Show this message and exit.
 ```
 
 ### Syncing
 
 Markdown anki decks can use [AnkiConnect](https://ankiweb.net/shared/info/2055492159) to sync the created decks immediately to anki.
 First you need to install AnkiConnect as an add on in Anki.
-Then you need to set the Sync Argument to true.
+Then you need to call `mdankideck` with the `--sync` flag.
 By default if you delete a question in markdown we do not delete the question in Anki during sync.
-However you can delete missing questions in Anki during sync by setting Delete cards to true.
+However you can delete missing questions in Anki during sync by calling `mdankideck` with the `--delete` flag.
 
 If you see an error message `Unable to reach anki connect. Make sure anki is running and the Anki Connect addon is installed.`, make sure you have installed anki connect and that you are running anki.
 
 ```sh
 # convert markdown file in the input directory to apkg files in the output
 # directory and sync the decks to anki using anki connect
-mdankideck input output True
+mdankideck input output --sync
 
 
 # convert input to output with an empty deck prefix (default)
 # and delete cards from anki if the question is deleted or changed in markdown
-mdankideck input output True "" True
+mdankideck input output --sync --delete
 ```
 
 ### Subdecks
@@ -118,6 +142,24 @@ The cards are styled with minimal css [markdown.css](markdown_anki_decks/styles/
 Syntax highlighting is provided via [pygments](https://github.com/pygments/pygments).
 The syntax highlighting uses the pygments default theme.
 The styling is not currently customizable by the user but that functionality can be added if it is desired.
+
+### Clozes (experimental)
+
+mdankideck supports close syntax in questions if you call `mdankideck` with the `--cloze` flag. Clozes can be specified in the question using the template `{{c#::answer::hint}}` where `#` is a number and answer and hint are words or multiple words. The hint is optional so you can also write `{{c#::answer}}`. Clozes with the same `c#` will be hidden together.
+
+The following markdown would create two cloze cards.
+
+```md
+## The alphabet starts with {{c1::a}} {{c2::b}} {{c1::a}}
+```
+
+`The alphabet starts with [...] b [...]`
+
+and
+
+`The alphabet starts with a [...] c`
+
+The `c1` clozes are blocked out together.
 
 #### Custom Styling
 
@@ -191,7 +233,7 @@ Check out `cli.py` to see the list of currently enabled extensions. (Search for 
 #### Multiline questions
 
 You may want to render complex questions which span multiple lines.
-You can use the fact that any `h2` element is assumed to be a question combined with the fact that the extension supports embedding markdown in html if you use the special attribute `markdown="block"` on the html element. It's much easier to see with an example.
+You can use the fact that any `h2` element is assumed to be a question combined with the fact that the markdown converter supports embedding markdown in html if you use the special attribute `markdown="block"` on the html element. It's much easier to see with an example.
 
 ```md
 <h2 markdown="block">

@@ -108,6 +108,15 @@ def sync_deck(deck: Deck, pathToDeckPackage: Path, delete_cards: bool):
 
 # synchronize the model and styling in the deck
 def sync_model(model: Model):
+    model_names_to_ids = dict()
+    try:
+        model_names_to_ids = invoke("modelNamesAndIds")
+        if model.name not in model_names_to_ids:
+            return
+    except Exception as e:
+        print_error("\tUnable to fetch existing model names and ids from anki")
+        print_error(f"\t\t{e}")
+
     if anki_connect_is_live():
         try:
             invoke(
