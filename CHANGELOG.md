@@ -1,3 +1,13 @@
+## 1.0.0 (2021-05-18)
+
+### Feat
+
+- **cloze**: add support for clozes and switch flags from arguments to options
+
+### BREAKING CHANGE
+
+- Switch from arguments to options in the cli.
+
 ## 0.4.0 (2021-05-18)
 
 ### Feat
