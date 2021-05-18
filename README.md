@@ -75,6 +75,17 @@ However you can delete missing questions in Anki during sync by setting Delete c
 
 If you see an error message `Unable to reach anki connect. Make sure anki is running and the Anki Connect addon is installed.`, make sure you have installed anki connect and that you are running anki.
 
+```sh
+# convert markdown file in the input directory to apkg files in the output
+# directory and sync the decks to anki using anki connect
+mdankideck input output True
+
+
+# convert input to output with an empty deck prefix (default)
+# and delete cards from anki if the question is deleted or changed in markdown
+mdankideck input output True "" True
+```
+
 ### Subdecks
 
 You can use the Deck title prefix option to make all your markdown decks part of a single subdeck.
@@ -83,6 +94,11 @@ Anki automatically creates subdecks based on deck names.
 > Decks can contain other decks, which allows you to organize decks into a tree. Anki uses “::” to show different levels. A deck called “Chinese::Hanzi” refers to a “Hanzi” deck, which is part of a “Chinese” deck. If you select “Hanzi” then only the Hanzi cards will be shown; if you select “Chinese” then all Chinese cards, including Hanzi cards, will be shown. [Source](https://docs.ankiweb.net/#/getting-started?id=decks)
 
 I use a prefix `md::` to store all my markdown decks in a subdeck called `md`.
+
+```sh
+# sync all cards to anki with a root deck `md`
+mdankideck input output True "md::" True
+```
 
 ### Images
 
@@ -111,18 +127,16 @@ You can add custom styling using yaml frontmatter. The css key takes a path to a
 ---
 css: custom-styles.css
 ---
-
 ```
 
 ```yaml
 ---
 css: ["one.css", "two.css", "three.css", "four.css"]
 ---
-
 ```
 
 The paths to the css files are assumed to be relative to the markdown file.
-Cards have the following html structure.
+Cards have the following html structure. During processing markdown anki decks wraps your answer in a section tag. So the answer will be `<section>{{Answer}}</section>`. This extra wrapping step is performed because answers can consist of multiple sibling html elements and we need to provide a single element to Anki.
 
 ```html
 <!-- the question card -->
@@ -132,13 +146,13 @@ Cards have the following html structure.
 
 <!-- the answer card -->
 <div class="card">
-  <div class="question">{{FrontSide}}</div>
+  <div class="question">{{Question}}</div>
   <hr />
   <div class="answer">{{Answer}}</div>
 </div>
 ```
 
-So you can style cards in general using the `.card` selector and you can style questions and answers using the `.question` and `.answer` selector.
+You can style cards in general using the `.card` selector and you can style questions and answers using the `.question` and `.answer` selector.
 
 ```css
 /* apply red background to all cards */
@@ -188,6 +202,18 @@ You can use the fact that any `h2` element is assumed to be a question combined 
 You can even add math to your questions \\(\sqrt{2}\\)
 
 </h2>
+```
+
+Additionally you may not want `h2` styling for your multiline question. In that case you can add the `data-question` attribute to any tag to make it a question.
+
+```md
+<div data-question markdown="block">
+
+This is a question which does not have h2 formatting!
+
+- it can contain nested markdown such as `code`
+
+</div>
 ```
 
 For more information [see the `md_in_html` documentation](https://github.com/Python-Markdown/markdown/blob/master/docs/extensions/md_in_html.md)

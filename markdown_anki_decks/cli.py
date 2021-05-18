@@ -8,6 +8,7 @@ import genanki
 import markdown
 import typer
 from bs4 import BeautifulSoup, Comment
+from bs4.element import Tag
 from genanki.deck import Deck
 
 from markdown_anki_decks.sync import sync_deck, sync_model
@@ -56,6 +57,11 @@ def convertMarkdown(
                         sync_model(model)
 
 
+# check if a tag is a question
+def is_question_tag(tag: Tag):
+    return tag.name == "h2" or (isinstance(tag, Tag) and tag.has_attr("data-question"))
+
+
 def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     metadata, markdown_string = frontmatter.parse(read_file(file))
     html = markdown.markdown(
@@ -100,14 +106,16 @@ def parse_markdown(file: str, deck_title_prefix: str) -> Deck:
     deck.add_model(model)
 
     # get the notes
-    note_headers = soup.find_all("h2")
+    note_headers = soup.find_all(is_question_tag, recursive=False)
     for header in note_headers:
         # the question is the header
         question = header
 
         # the contents are everything until the next header
         contents = list(
-            itertools.takewhile(lambda el: el.name != "h2", header.next_siblings)
+            itertools.takewhile(
+                lambda el: not is_question_tag(el), header.next_siblings
+            )
         )
 
         # wrap the contents in a section tag. the section is the answer.
