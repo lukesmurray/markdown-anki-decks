@@ -1,3 +1,9 @@
+## 0.4.0 (2021-05-18)
+
+### Feat
+
+- **multiline-questions**: add data-question attribute to detect questions on custom tags
+
 ## 0.3.2 (2021-05-17)
 
 ### Fix
