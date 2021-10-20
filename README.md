@@ -141,7 +141,6 @@ These are limitations of anki not Markdown anki decks.
 The cards are styled with minimal css [markdown.css](markdown_anki_decks/styles/markdown.css).
 Syntax highlighting is provided via [pygments](https://github.com/pygments/pygments).
 The syntax highlighting uses the pygments default theme.
-The styling is not currently customizable by the user but that functionality can be added if it is desired.
 
 ### Clozes (experimental)
 
