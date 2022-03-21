@@ -281,7 +281,7 @@ Happy to discuss additional features if you open up an issue.
 We use commitizen for commits.
 Run `poetry run cz commit` to make a commit.
 
-Run `poetry run mdankideck testData/input testData/output True "test::" True` to convert the test data into decks.
+Run `poetry run mdankideck --prefix "test::" --sync --cloze testData/input testData/output` to convert the test data into decks.
 
 Run `poetry run pygmentize -S default -f html -a .codehilite > ./markdown_anki_decks/styles/pygments.css` to create a pygments stylesheet.
 Run `poetry run pygmentize -S monokai -f html -a ".nightMode .codehilite" > ./markdown_anki_decks/styles/pygments-dark.css` to create the dark mode stylesheet.
