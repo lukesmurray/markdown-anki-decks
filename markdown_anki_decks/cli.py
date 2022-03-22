@@ -179,14 +179,14 @@ def parse_markdown(
 
         # create the note using the simple model
         note = FrontIdentifierNote(
-            deck_id,
+            guid=genanki.guid_for(soup_to_html_string(question), deck_id),
             model=(
                 cloze_model
                 if generate_cloze_model
                 and has_clozes(soup_to_plaintext_string(question))
                 else model
             ),
-            fields=[soup_to_html_string(question), soup_to_html_string(answer)],
+            fields=[soup_to_plain_html_string(question), soup_to_plain_html_string(answer)],
         )
         deck.add_note(note)
 
@@ -196,8 +196,7 @@ def parse_markdown(
 # genanki Note which has a unique id based on the deck and the question
 # also has a field for the guid so the guid can be accessed in queries
 class FrontIdentifierNote(genanki.Note):
-    def __init__(self, deck_id, model=None, fields=None, sort_field=None, tags=None):
-        guid = genanki.guid_for(fields[0], deck_id)
+    def __init__(self, guid, model=None, fields=None, sort_field=None, tags=None):
         if fields is not None:
             fields.append(guid)
         super().__init__(
@@ -205,10 +204,13 @@ class FrontIdentifierNote(genanki.Note):
         )
 
 
-# convert beautiful soup object to a string
+# convert beautiful soup object to a pretty html string
 def soup_to_html_string(soup):
     return soup.prettify(formatter="html5")
 
+# convert beautiful soup object to a non-pretty html string
+def soup_to_plain_html_string(soup):
+    return str(soup)
 
 def soup_to_plaintext_string(soup):
     return soup.get_text()
