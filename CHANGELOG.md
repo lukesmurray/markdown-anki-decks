@@ -1,3 +1,9 @@
+## 1.0.1 (2022-03-21)
+
+### Fix
+
+- **poetry.lock**: Update dependencies and poetry.lock to fix installation issues
+
 ## 1.0.0 (2021-05-18)
 
 ### Feat
