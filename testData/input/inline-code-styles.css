@@ -1,0 +1,9 @@
+/* define a background-color for inline-code */
+code {
+  background-color: rgba(175,184,193,0.2);
+}
+
+/* make code block have a separate background-color */
+.codehilite code {
+  background-color: #f8f8f8;
+}
