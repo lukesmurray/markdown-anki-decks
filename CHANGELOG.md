@@ -1,3 +1,9 @@
+## 1.1.0 (2022-03-28)
+
+### Feat
+
+- add support, documentation, and tests for sound files
+
 ## 1.0.2 (2022-03-28)
 
 ### Fix
