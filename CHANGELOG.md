@@ -1,3 +1,9 @@
+## 1.0.2 (2022-03-28)
+
+### Fix
+
+- **cli.py**: correct improper html generating method
+
 ## 1.0.1 (2022-03-21)
 
 ### Fix
