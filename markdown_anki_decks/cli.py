@@ -1,3 +1,4 @@
+"""CLI for markdown anki decks package."""
 import hashlib
 import itertools
 import os
@@ -20,6 +21,7 @@ app = typer.Typer()
 
 
 def version_callback(value: bool):
+    """Return the current version of the CLI."""
     from . import __version__
 
     if value:
@@ -60,7 +62,7 @@ def convertMarkdown(
         False, "--version", callback=version_callback, help="Show version information"
     ),
 ):
-
+    """Interface for the cli convert command."""
     # iterate over the source directory
     for root, _, files in os.walk(input_dir):
         for file in files:
@@ -84,18 +86,20 @@ ANKI_CLOZE_REGEXP = re.compile(r"{{c\d+::[\s\S]+?}}")
 
 
 def has_clozes(text):
-    """Checks whether text actually has cloze deletions."""
+    """Check whether text actually has cloze deletions."""
     return bool(ANKI_CLOZE_REGEXP.search(text))
 
 
 # check if a tag is a question
 def is_question_tag(tag: Tag):
+    """Check if an HTML tag is a question."""
     return tag.name == "h2" or (isinstance(tag, Tag) and tag.has_attr("data-question"))
 
 
 def parse_markdown(
     file: str, deck_title_prefix: str, generate_cloze_model: bool
 ) -> Deck:
+    """Parse a markdown string to an anki deck."""
     metadata, markdown_string = frontmatter.parse(read_file(file))
     html = markdown.markdown(
         markdown_string,
@@ -193,10 +197,14 @@ def parse_markdown(
     return deck
 
 
-# genanki Note which has a unique id based on the deck and the question
-# also has a field for the guid so the guid can be accessed in queries
 class FrontIdentifierNote(genanki.Note):
+    """genanki Note which has a unique id based on the deck and the question.
+
+    Also has a field for the guid so the guid can be accessed in queries.
+    """
+
     def __init__(self, guid, model=None, fields=None, sort_field=None, tags=None):
+        """Custructor for the FrontIdentifierNote."""
         if fields is not None:
             fields.append(guid)
         super().__init__(
@@ -204,20 +212,30 @@ class FrontIdentifierNote(genanki.Note):
         )
 
 
-# convert beautiful soup object to a pretty html string
 def soup_to_html_string(soup):
+    """Convert a BeautifulSoup object to a pretty html string.
+
+    Do not use this string for rendering. It changes the html semantics by adding
+    whitespace.
+    """
     return soup.prettify(formatter="html5")
 
-# convert beautiful soup object to a non-pretty html string
+
 def soup_to_plain_html_string(soup):
+    """Convert a BeautifulSoup object to a string.
+
+    Use this for rendering.
+    """
     return str(soup)
 
+
 def soup_to_plaintext_string(soup):
+    """Extract text from a BeautifulSoup object without html tags."""
     return soup.get_text()
 
 
-# convert a file to a string
 def read_file(file):
+    """Get text from a file."""
     with open(file, "r", encoding="utf-8") as f:
         markdown_string = f.read()
     return markdown_string
@@ -225,19 +243,22 @@ def read_file(file):
 
 # check if a file is a markdown file
 def is_markdown_file(file):
+    """Check if a file is a markdown file."""
     # TODO(lukemurray): parameterize markdown extensions?
     return file.endswith(".md")
 
 
-# convert a string into a random integer from 0 to 1<<31 exclusive
-# used to create model and deck ids
-# from https://stackoverflow.com/a/42089311/11499360
 def integer_hash(s: str):
+    """Convert a string into a random integer from 0 to 1<<31 exclusive.
+
+    Used to create model and deck ids.
+    From https://stackoverflow.com/a/42089311/11499360
+    """
     return int(hashlib.sha256(s.encode("utf-8")).hexdigest(), 16) % (1 << 31)
 
 
-# get all the image files in a directory
 def image_files(source: Path):
+    """Get all the image files in a directory."""
     return list(
         str(p)
         for p in itertools.chain(
@@ -250,7 +271,7 @@ def image_files(source: Path):
 
 
 def read_css(file: str, metadata: dict) -> str:
-    # merge the css files
+    """Concatenate default and user provided css files into a string."""
     markdown_css = Path(__file__).parent / "./styles/markdown.css"
     pygments_css = Path(__file__).parent / "./styles/pygments.css"
     pygments_dark_css = Path(__file__).parent / "./styles/pygments-dark.css"
@@ -270,4 +291,5 @@ def read_css(file: str, metadata: dict) -> str:
 
 
 def main():
+    """Run the CLI application."""
     app()
