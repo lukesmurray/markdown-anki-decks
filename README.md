@@ -136,6 +136,20 @@ All images must have unique filenames even if they are stored in different folde
 
 These are limitations of anki not Markdown anki decks.
 
+### Sounds
+
+Use the syntax `[sound:sound-file.mp3]` to add a sound to your card.
+
+Markdown anki decks support sounds which are stored in the same folder as the markdown file they are referenced by.
+
+`[sound:sound-file.mp3]` will work because it is in the same folder as the markdown file.
+
+`[sound:./sounds/sound-file.mp3]` will not work because it is in a different folder than the markdown file.
+
+All sounds must have unique filenames even if they are stored in different folders.
+
+These are limitations of anki not Markdown anki decks.
+
 ### Styling Cards
 
 The cards are styled with minimal css [markdown.css](markdown_anki_decks/styles/markdown.css).

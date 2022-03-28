@@ -72,7 +72,7 @@ def convertMarkdown(
                 )
                 package = genanki.Package(deck)
                 # add all image files to the package
-                package.media_files = image_files(input_dir)
+                package.media_files = image_files(input_dir) + sound_files(input_dir)
                 path_to_pkg_file = os.path.join(output_dir, f"{Path(file).stem}.apkg")
                 package.write_to_file(path_to_pkg_file)
                 print_success(f"Created apkg for deck {deck.name}")
@@ -262,10 +262,23 @@ def image_files(source: Path):
     return list(
         str(p)
         for p in itertools.chain(
-            source.rglob("*.jpg"),
-            source.rglob("*.jpeg"),
-            source.rglob("*.png"),
             source.rglob("*.gif"),
+            source.rglob("*.jpeg"),
+            source.rglob("*.jpg"),
+            source.rglob("*.png"),
+        )
+    )
+
+
+def sound_files(source: Path):
+    """Get all the sound files in a directory."""
+    return list(
+        str(p)
+        for p in itertools.chain(
+            source.rglob("*.avi"),
+            source.rglob("*.mp3"),
+            source.rglob("*.ogg"),
+            source.rglob("*.wav"),
         )
     )
 
