@@ -249,7 +249,7 @@ def read_file(file):
 
 # check if a file is a markdown file
 def is_correct_filetype(file, filetype: str):
-    """Check if a file is a markdown file."""
+    """Check if a file has the correct extension."""
     return file.endswith(f".{filetype}")
 
 
