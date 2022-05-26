@@ -4,6 +4,7 @@ import itertools
 import os
 import re
 from pathlib import Path
+from typing import List, Optional
 
 import frontmatter
 import genanki
@@ -48,10 +49,10 @@ def convertMarkdown(
         "--prefix",
         help="Can be used to make your markdown decks part of a single subdeck. Anki uses `::` to indicate sub decks. `markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
     ),
-    filetype: str = typer.Option(
-        "md",
-        "--ft",
-        help="Can be use to specify the use of other filetypes. Specify just the fine extension, e.g., 'txt'",
+    extension: Optional[List[str]] = typer.Option(
+        ["md"],
+        "--ext",
+        help="Allows you specify which file extensions markdown-anki-decks will use when searching for files to convert into Anki decks. By default, it uses 'md' as the only file extension."
     ),
     delete_cards: bool = typer.Option(
         False,
@@ -72,7 +73,7 @@ def convertMarkdown(
     # iterate over the source directory
     for root, _, files in os.walk(input_dir):
         for file in files:
-            if is_correct_filetype(file, filetype):
+            if has_file_extension(file, extension):
                 deck = parse_markdown(
                     os.path.join(root, file), deck_title_prefix, cloze
                 )
@@ -247,10 +248,10 @@ def read_file(file):
     return markdown_string
 
 
-# check if a file is a markdown file
-def is_correct_filetype(file, filetype: str):
-    """Check if a file has the correct extension."""
-    return file.endswith(f".{filetype}")
+# check if a file has a valid extension
+def has_file_extension(file, extensions: List[str]):
+    """Check if a file has the same extension as the ones the user has passed in."""
+    return True in [file.endswith(f".{ext}") for ext in extensions]
 
 
 def integer_hash(s: str):
