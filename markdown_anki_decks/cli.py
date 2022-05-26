@@ -48,6 +48,11 @@ def convertMarkdown(
         "--prefix",
         help="Can be used to make your markdown decks part of a single subdeck. Anki uses `::` to indicate sub decks. `markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
     ),
+    filetype: str = typer.Option(
+        "md",
+        "--ft",
+        help="Can be use to specify the use of other filetypes. Specify just the fine extension, e.g., 'txt'",
+    ),
     delete_cards: bool = typer.Option(
         False,
         "--delete",
@@ -62,11 +67,12 @@ def convertMarkdown(
         False, "--version", callback=version_callback, help="Show version information"
     ),
 ):
+
     """Interface for the cli convert command."""
     # iterate over the source directory
     for root, _, files in os.walk(input_dir):
         for file in files:
-            if is_markdown_file(file):
+            if is_correct_filetype(file, filetype):
                 deck = parse_markdown(
                     os.path.join(root, file), deck_title_prefix, cloze
                 )
@@ -242,10 +248,9 @@ def read_file(file):
 
 
 # check if a file is a markdown file
-def is_markdown_file(file):
+def is_correct_filetype(file, filetype: str):
     """Check if a file is a markdown file."""
-    # TODO(lukemurray): parameterize markdown extensions?
-    return file.endswith(".md")
+    return file.endswith(f".{filetype}")
 
 
 def integer_hash(s: str):
