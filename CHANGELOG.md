@@ -1,3 +1,9 @@
+## 1.1.1 (2022-06-22)
+
+### Fix
+
+- **cli.py**: only add media files to decks when the media file is actually referenced
+
 ## 1.1.0 (2022-03-28)
 
 ### Feat
