@@ -4,6 +4,7 @@ import itertools
 import os
 import re
 from pathlib import Path
+from urllib.parse import urlparse
 
 import frontmatter
 import genanki
@@ -16,6 +17,7 @@ from genanki.model import Model
 
 from markdown_anki_decks.sync import sync_deck, sync_model
 from markdown_anki_decks.utils import print_success
+import typing as t
 
 app = typer.Typer()
 
@@ -46,9 +48,9 @@ def convertMarkdown(
     deck_title_prefix: str = typer.Option(
         "",
         "--prefix",
-        help="Can be used to make your markdown decks part of a single subdeck. " +
-        "Anki uses `::` to indicate sub decks. " +
-        "`markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
+        help="Can be used to make your markdown decks part of a single subdeck. "
+        + "Anki uses `::` to indicate sub decks. "
+        + "`markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
     ),
     delete_cards: bool = typer.Option(
         False,
@@ -66,16 +68,16 @@ def convertMarkdown(
 ):
     """Interface for the cli convert command."""
     # iterate over the source directory
-    for root, _, files in os.walk(input_dir):
-        for file in files:
-            if is_markdown_file(file):
-                deck = parse_markdown(
-                    os.path.join(root, file), deck_title_prefix, cloze
+    for dirpath, _, filenames in os.walk(input_dir):
+        for filename in filenames:
+            if is_markdown_file(filename):
+                deck, referenced_img_files, referenced_sound_files = parse_markdown(
+                    Path(dirpath, filename), deck_title_prefix, cloze
                 )
                 package = genanki.Package(deck)
-                # add all image files to the package
-                package.media_files = image_files(input_dir) + sound_files(input_dir)
-                path_to_pkg_file = os.path.join(output_dir, f"{Path(file).stem}.apkg")
+                # add all media files to the package
+                package.media_files = referenced_img_files + referenced_sound_files
+                path_to_pkg_file = Path(output_dir, f"{Path(filename).stem}.apkg")
                 package.write_to_file(path_to_pkg_file)
                 print_success(f"Created apkg for deck {deck.name}")
                 if sync:
@@ -98,10 +100,22 @@ def is_question_tag(tag: Tag):
     return tag.name == "h2" or (isinstance(tag, Tag) and tag.has_attr("data-question"))
 
 
+class ParseMarkdownResult(t.NamedTuple):
+    deck: Deck
+    referenced_img_files: t.List[Path]
+    referenced_sound_files: t.List[Path]
+
+
 def parse_markdown(
-    file: str, deck_title_prefix: str, generate_cloze_model: bool
-) -> Deck:
+    file: Path, deck_title_prefix: str, generate_cloze_model: bool
+) -> ParseMarkdownResult:
     """Parse a markdown string to an anki deck."""
+    if not file.is_file():
+        raise ValueError(f"File {file} does not exist or is not a file.")
+    directory = file.parent
+    if not directory.is_dir():
+        raise ValueError(f"Directory {directory} does not exist or is not a directory.")
+
     metadata, markdown_string = frontmatter.parse(read_file(file))
     html = markdown.markdown(
         markdown_string,
@@ -131,11 +145,11 @@ def parse_markdown(
             {
                 "name": "Card 1",
                 "qfmt": '<div class="card"><div class="question">{{Question}}</div></div>',
-                "afmt": '<div class="card">' +
-                '<div class="question">{{Question}}</div>' +
-                '<hr>' +
-                '<div class="answer">{{Answer}}</div>' +
-                '</div>',
+                "afmt": '<div class="card">'
+                + '<div class="question">{{Question}}</div>'
+                + "<hr>"
+                + '<div class="answer">{{Answer}}</div>'
+                + "</div>",
             },
         ],
         css=read_css(file, metadata),
@@ -151,11 +165,11 @@ def parse_markdown(
             {
                 "name": "Card 1",
                 "qfmt": '<div class="card"><div class="question">{{cloze:Question}}</div></div>',
-                "afmt": '<div class="card">' +
-                '<div class="question">{{cloze:Question}}</div>' +
-                '<hr>' +
-                '<div class="answer">{{Answer}}</div>' +
-                '</div>',
+                "afmt": '<div class="card">'
+                + '<div class="question">{{cloze:Question}}</div>'
+                + "<hr>"
+                + '<div class="answer">{{Answer}}</div>'
+                + "</div>",
             },
         ],
         css=read_css(file, metadata),
@@ -166,7 +180,7 @@ def parse_markdown(
     deck_id = integer_hash(deck_title)
     deck = genanki.Deck(deck_id=deck_id, name=deck_title)
 
-    # add model to deeck
+    # add model to deck
     deck.add_model(model)
     if generate_cloze_model:
         deck.add_model(cloze_model)
@@ -200,11 +214,78 @@ def parse_markdown(
                 and has_clozes(soup_to_plaintext_string(question))
                 else model
             ),
-            fields=[soup_to_plain_html_string(question), soup_to_plain_html_string(answer)],
+            fields=[
+                soup_to_plain_html_string(question),
+                soup_to_plain_html_string(answer),
+            ],
         )
         deck.add_note(note)
 
-    return deck
+    # get referenced media files
+    referenced_img_files, missing_img_files = parse_image_files(directory, soup)
+    if len(missing_img_files) > 0:
+        typer.echo(
+            typer.style(
+                f"Unable to resolve the following images: {', '.join(missing_img_files)}",
+                fg="yellow",
+            )
+        )
+
+    referenced_sound_files, missing_sound_files = parse_sound_files(directory, soup)
+    if len(missing_sound_files) > 0:
+        typer.echo(
+            typer.style(
+                f"Unable to resolve the following sounds: {', '.join(missing_sound_files)}",
+                fg="yellow",
+            )
+        )
+
+    return ParseMarkdownResult(
+        deck=deck,
+        referenced_img_files=list(referenced_img_files),
+        referenced_sound_files=list(referenced_sound_files),
+    )
+
+
+def parse_image_files(directory: Path, soup: BeautifulSoup):
+    local_img_files = set(image_files(directory))
+    img_tags = soup.find_all("img")
+    img_urls: t.List[str] = [
+        tag.get("src") for tag in img_tags if tag.get("src") is not None
+    ]
+    relative_img_urls = [url for url in img_urls if is_relative_url(url)]
+    resolved_img_urls = set([(directory / url).resolve() for url in relative_img_urls])
+    referenced_img_files = resolved_img_urls & local_img_files
+
+    missing_img_files = sorted(
+        [str(p) for p in list(resolved_img_urls - local_img_files)]
+    )
+    return referenced_img_files, missing_img_files
+
+
+def parse_sound_files(directory: Path, soup: BeautifulSoup):
+    local_sound_files = set(sound_files(directory))
+    sound_regex = re.compile(r"\[sound:(.*?)\]")
+    sound_strings: t.List[str] = soup.find_all(string=sound_regex)
+    sound_urls = list(
+        itertools.chain(
+            *[
+                t.cast(t.List[str], re.findall(sound_regex, reference_string))
+                for reference_string in sound_strings
+            ]
+        )
+    )
+    relative_sound_urls = (url for url in sound_urls if is_relative_url(url))
+    resolved_sound_urls = set(
+        [(directory / url).resolve() for url in relative_sound_urls]
+    )
+    referenced_sound_files = resolved_sound_urls & local_sound_files
+
+    missing_sound_files = sorted(
+        [str(p) for p in list(resolved_sound_urls - local_sound_files)]
+    )
+
+    return referenced_sound_files, missing_sound_files
 
 
 class FrontIdentifierNote(genanki.Note):
@@ -244,9 +325,9 @@ def soup_to_plaintext_string(soup):
     return soup.get_text()
 
 
-def read_file(file):
+def read_file(file: Path):
     """Get text from a file."""
-    with open(file, "r", encoding="utf-8") as f:
+    with file.open("r", encoding="utf-8") as f:
         markdown_string = f.read()
     return markdown_string
 
@@ -269,31 +350,38 @@ def integer_hash(s: str):
 
 def image_files(source: Path):
     """Get all the image files in a directory."""
-    return list(
-        str(p)
-        for p in itertools.chain(
+    return [
+        Path.resolve(file)
+        for file in itertools.chain(
             source.rglob("*.gif"),
             source.rglob("*.jpeg"),
             source.rglob("*.jpg"),
             source.rglob("*.png"),
         )
-    )
+        if file.is_file()
+    ]
 
 
 def sound_files(source: Path):
     """Get all the sound files in a directory."""
-    return list(
-        str(p)
-        for p in itertools.chain(
+    return [
+        Path.resolve(file)
+        for file in itertools.chain(
             source.rglob("*.avi"),
             source.rglob("*.mp3"),
             source.rglob("*.ogg"),
             source.rglob("*.wav"),
         )
-    )
+        if file.is_file()
+    ]
 
 
-def read_css(file: str, metadata: dict) -> str:
+def is_relative_url(url: str):
+    """Check if a url is relative."""
+    return urlparse(url).netloc == ""
+
+
+def read_css(file: Path, metadata: dict) -> str:
     """Concatenate default and user provided css files into a string."""
     markdown_css = Path(__file__).parent / "./styles/markdown.css"
     pygments_css = Path(__file__).parent / "./styles/pygments.css"
@@ -305,15 +393,15 @@ def read_css(file: str, metadata: dict) -> str:
             custom_css_paths = [custom_css_paths]
         for custom_css_path in custom_css_paths:
             custom_css_contents.append(
-                (Path(file).parent / custom_css_path).read_text("utf-8")
+                (file.parent / custom_css_path).read_text("utf-8")
             )
 
     custom_css = "\n".join(custom_css_contents)
-    return f'''{markdown_css.read_text("utf-8")}
+    return f"""{markdown_css.read_text("utf-8")}
 {pygments_css.read_text("utf-8")}
 {pygments_dark_css.read_text("utf-8")}
 {custom_css}
-'''
+"""
 
 
 def main():
