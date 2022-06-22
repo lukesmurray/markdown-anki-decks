@@ -46,7 +46,9 @@ def convertMarkdown(
     deck_title_prefix: str = typer.Option(
         "",
         "--prefix",
-        help="Can be used to make your markdown decks part of a single subdeck. Anki uses `::` to indicate sub decks. `markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
+        help="Can be used to make your markdown decks part of a single subdeck. " +
+        "Anki uses `::` to indicate sub decks. " +
+        "`markdown-decks::` could be used to make all generated decks part of a single root deck `markdown-decks`",
     ),
     delete_cards: bool = typer.Option(
         False,
@@ -129,7 +131,11 @@ def parse_markdown(
             {
                 "name": "Card 1",
                 "qfmt": '<div class="card"><div class="question">{{Question}}</div></div>',
-                "afmt": '<div class="card"><div class="question">{{Question}}</div><hr><div class="answer">{{Answer}}</div></div>',
+                "afmt": '<div class="card">' +
+                '<div class="question">{{Question}}</div>' +
+                '<hr>' +
+                '<div class="answer">{{Answer}}</div>' +
+                '</div>',
             },
         ],
         css=read_css(file, metadata),
@@ -145,7 +151,11 @@ def parse_markdown(
             {
                 "name": "Card 1",
                 "qfmt": '<div class="card"><div class="question">{{cloze:Question}}</div></div>',
-                "afmt": '<div class="card"><div class="question">{{cloze:Question}}</div><hr><div class="answer">{{Answer}}</div></div>',
+                "afmt": '<div class="card">' +
+                '<div class="question">{{cloze:Question}}</div>' +
+                '<hr>' +
+                '<div class="answer">{{Answer}}</div>' +
+                '</div>',
             },
         ],
         css=read_css(file, metadata),
@@ -299,8 +309,11 @@ def read_css(file: str, metadata: dict) -> str:
             )
 
     custom_css = "\n".join(custom_css_contents)
-
-    return f'{markdown_css.read_text("utf-8")}\n{pygments_css.read_text("utf-8")}\n{pygments_dark_css.read_text("utf-8")}\n{custom_css}'
+    return f'''{markdown_css.read_text("utf-8")}
+{pygments_css.read_text("utf-8")}
+{pygments_dark_css.read_text("utf-8")}
+{custom_css}
+'''
 
 
 def main():
